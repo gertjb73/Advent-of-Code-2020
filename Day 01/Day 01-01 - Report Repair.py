@@ -41,7 +41,7 @@
 # Find the two entries that sum to 2020;
 # what do you get if you multiply them together?
 
-expense_report_file = open("Day 01-01 - Report Repair.txt", "r")
+expense_report_file = open("Day 01 - Report Repair.txt", "r")
 expense_report = expense_report_file.readlines()
 
 value1 = 0

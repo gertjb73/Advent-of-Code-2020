@@ -51,7 +51,7 @@
 #
 # In your expense report, what is the product of the three entries that sum to 2020?
 
-expense_report_file = open("Day 01-01 - Report Repair.txt", "r")
+expense_report_file = open("Day 01 - Report Repair.txt", "r")
 expense_report = expense_report_file.readlines()
 # print(expense_report)
 
