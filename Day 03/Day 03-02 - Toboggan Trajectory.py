@@ -146,6 +146,7 @@ def check_for_different_step(steps_right, steps_down):
 full_map = read_map_file("Day 03 - Toboggan Trajectory.txt")
 
 # Set steps and other map related variables
+print(full_map)
 map_size_x = len(full_map[0])
 map_size_y = len(full_map)
 # - Right 1, down 1.
@@ -166,4 +167,5 @@ for steps in steps_to_check:
     right, down = steps
     counted_trees = check_for_different_step(right, down)
     multiply_answer *= counted_trees
-    print("Steps Right, Down (", right, ",", down, ")\t\tNumber of trees found:", counted_trees, "\tMultiply:", multiply_answer)
+    print("Steps Right, Down (", right, ",", down, ")\t\tNumber of trees found:", counted_trees, "\tMultiply:",
+          multiply_answer)
