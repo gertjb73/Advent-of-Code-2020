@@ -146,6 +146,8 @@
 # and valid values. Continue to treat cid as optional. In your batch file,
 # how many passports are valid?
 
+import re
+
 def read_passport_file(name_of_passport_file):
     passport_file = open(name_of_passport_file, "r")
     passport_data = passport_file.read().splitlines()
@@ -196,25 +198,35 @@ def check_validity_of_passport(passport):
     return passport_still_valid
 
 
+def special_match(strg, search=re.compile(r'[^a-f0-9]').search):
+    return not bool(search(strg))
+
+
 def check_birth_year(value):
+    # byr(BirthYear) - four digits; at least 1920 and at most 2002.
     byr_valid = True if 1920 <= int(value) <= 2002 else False
     # print("BYR Value", value, byr_valid)
     return byr_valid
 
 
 def check_issue_year(value):
+    # iyr (Issue Year) - four digits; at least 2010 and at most 2020.
     iyr_valid = True if 2010 <= int(value) <= 2020 else False
     # print("IYR Value", value, iyr_valid)
     return iyr_valid
 
 
 def check_expiration_year(value):
+    # eyr (Expiration Year) - four digits; at least 2020 and at most 2030.
     eyr_valid = True if 2020 <= int(value) <= 2030 else False
     # print("EYR Value", value, eyr_valid)
     return eyr_valid
 
 
 def check_height(value):
+    # hgt (Height) - a number followed by either cm or in:
+    #   - If cm, the number must be at least 150 and at most 193.
+    #   - If in, the number must be at least 59 and at most 76.
     # Check to see if the value is in 'cm' or in 'in'.
     # If height doesn't contain this, then it's invalid anyway
     hgt_indicator = value.find("cm")
@@ -230,25 +242,48 @@ def check_height(value):
         return hgt_valid
 
     if hgt_indicator < 0:  # No 'cm' or 'in' found
-        height = 0
         hgt_valid = False
         return hgt_valid
 
 
 def check_hair_color(value):
-    print("HCL Value", value)
+    # hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
+    if len(value) != 7:
+        hcl_valid = False
+        return hcl_valid
+    if value[0] != '#':
+        hcl_valid = False
+        return hcl_valid
+    hcl_valid = special_match(value[1:])
+    return hcl_valid
 
 
 def check_eye_color(value):
-    print("ECL Value", value)
+    # ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
+    eye_colors = ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth']
+    if any(eye_color in value for eye_color in eye_colors):
+        ecl_valid = True
+    else:
+        ecl_valid = False
+    return ecl_valid
 
 
 def check_passport_id(value):
-    print("PID Value", value)
+    # pid (Passport ID) - a nine-digit number, including leading zeroes.
+    pid_valid = True
+    if len(value) != 9:
+        pid_valid = False
+        return pid_valid
+    if not value.isdecimal():
+        pid_valid = False
+        return pid_valid
+    return pid_valid
 
 
 def check_country_id(value):
-    print("CID Value", value)
+    # cid (Country ID) - ignored, missing or not.
+    cid_valid = True
+    return cid_valid
 
 
 def switch_on_passport_key(key, value):
@@ -261,23 +296,23 @@ def switch_on_passport_key(key, value):
         key_valid = check_expiration_year(value)
     elif key == 'hgt':
         key_valid = check_height(value)
-    # elif key == 'hcl':
-    #     check_hair_color(value)
-    # elif key == 'ecl':
-    #     check_eye_color(value)
-    # elif key == 'pid':
-    #     check_passport_id(value)
-    # elif key == 'cid':
-    #     check_country_id(value)
+    elif key == 'hcl':
+        key_valid = check_hair_color(value)
+    elif key == 'ecl':
+        key_valid = check_eye_color(value)
+    elif key == 'pid':
+        key_valid = check_passport_id(value)
+    elif key == 'cid':
+        key_valid = check_country_id(value)
 
     return key_valid
 
 
 # Main line
 # Start reading the map
-all_passports = read_passport_file("Day 04-02 - Passport Processing - Example input - Invalid.txt")
+# all_passports = read_passport_file("Day 04-02 - Passport Processing - Example input - Invalid.txt")
 # all_passports = read_passport_file("Day 04-02 - Passport Processing - Example input - Valid.txt")
-# all_passports = read_passport_file("Day 04 - Passport Processing.txt")
+all_passports = read_passport_file("Day 04 - Passport Processing.txt")
 
 # Put together Passport data: Combine several Passport line to one line.
 all_processed_passports = put_passports_together(all_passports)
@@ -286,6 +321,7 @@ all_processed_passports = put_passports_together(all_passports)
 number_of_valid_passports = 0
 for passport_to_check in all_processed_passports:
     passport_is_valid = check_validity_of_passport(passport_to_check)
+    print(passport_to_check, passport_is_valid)
     if passport_is_valid:
         number_of_valid_passports += 1
 
